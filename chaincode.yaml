@@ -1,0 +1,94 @@
+dataModels:
+  - entity: order
+    codeName: Order
+    isPrivate: false
+    stateModel: "Жизненный цикл заказа"
+    classModels: "Объектная модель"
+
+serviceModels:
+  - service: catalog
+    codeName: Catalog
+    classModels: Model1
+  - service: orderService
+    codeName: OrderService
+    classModels: Model1
+
+stateModels:
+  - name: "Жизненный цикл заказа"
+    type: puml
+    contentType: inline
+    data: |
+      @startuml 
+        [*] --> Created
+        Created --> Approved
+        Approved --> Sent
+        Sent --> Delivered
+        Created --> Cancelled
+        Cancelled --> [*]
+
+        note right of Created
+          Черновик заказа создан,
+          добавление позиций
+        end note
+
+        note right of Cancelled
+          Заказ отменён
+        end note
+
+        note left of Approved
+          Заказ был согласован 
+          и со стороны Заказчика,
+          и со стороны Исполнителя
+        end note
+      @enduml
+
+classModels:
+  - name: "Объектная модель"
+    type: puml
+    contentType: inline
+    data: |
+      @startuml
+      class Order {
+        String Id
+        String Name
+        CargoType CargoType
+
+        String OriginPoint
+        String OrderDatetime
+        String ShippmentPoint
+        String ShippmentDatetime
+        
+        Good[] Positions 
+        Float TotalCost
+
+        String ApproveByCustomerDatetime
+        String ApproveBySupplierDatetime
+      }
+      note right of Order
+        **Id** - внутренний идентификатор заказа
+        **Name** - предмет заказа
+      end note
+
+      class Good {
+        String Position
+        Float Price
+        Float Amount
+        Float TotalCost
+      }
+
+      enum CargoType {
+        Container,
+        LiquidBulk,
+        DryBulk
+      }
+
+
+
+      interface OrderService {
+        String CreateOrderDraft(String name, CargoType cargoType)
+        void AddOrderPositions(String position, Float price, Float amount)
+        void ApproveOrder(String orderId)
+        void AcceptOrder(String orderId, String acceptPoint)
+      }
+
+      @enduml
